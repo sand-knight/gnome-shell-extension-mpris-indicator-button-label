@@ -4,6 +4,8 @@ A fork of [gnome-shell-extension-mpris-indicator-button](https://github.com/Jaso
 
 ![image](https://user-images.githubusercontent.com/79469450/131202439-ffa81ab3-c67b-4e72-9650-a06866c49774.png)
 
+The label can grow indefinitely unless you put some code to trim it. Gnome-shell trims it for me anyway, when it extends till the centered elements of the panel, so I'm fine as is.
+
 
 Copied from [this version](https://github.com/JasonLG1979/gnome-shell-extension-mpris-indicator-button/commit/778c397c11ec1fcdb5a876024f49d64c6c613be6) on 28 August 2021.
 Made just a trivial change without even knowing javascript: every credit goes to the authors as described in the original [README](https://github.com/JasonLG1979/gnome-shell-extension-mpris-indicator-button/blob/master/README.md).
