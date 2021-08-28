@@ -40,12 +40,18 @@ const VOULME_ICONS = [
     'audio-volume-high-symbolic'
 ];
 
-//const PLAYBACK_SYMBOLS = [
+//const PLAYBACK_SYMBOLS = [ useful characters
 //	"■",
 //	"▮▮",
 //	"▶"
 //];
 
+
+/* This array contains the names of the shell's theme related icons, 
+	which will be fetched by the shell and proposed to the extension.
+	The idea and the info are taken straight from this same extension's
+	code, in the now removed section regarding the ToolTip.
+*/
 const PLAYBACK_ICONS = [
             'media-playback-stop-symbolic',
             'media-playback-pause-symbolic',
@@ -1385,20 +1391,21 @@ var MprisIndicatorButton = GObject.registerClass({
             style_class: 'system-status-icon'
         });
         
-        let box= new St.BoxLayout();	// MODIFICA
-        let lindicator = new St.Label({ //
-        	text: "Hello World",
+        let box= new St.BoxLayout();		// THIS BOX DID NOT EXIST
+	let lindicator = new St.Label({		//THIS IS THE LABEL FOR THE TITLE
+        	text: "Hello World",		// DID NOT EXIST OFC
         	y_align: Clutter.ActorAlign.CENTER  //
-        });//
+        });						//
         
         
         indicator.add_effect(new Clutter.DesaturateEffect());
 
-// ORIGINAL        this.add_child(indicator);
-	box.add_actor(indicator);	// MODIFICA
-
-	box.add_actor(lindicator);	//MODIFICA
-	this.add_child(box);
+// ORIGINAL        this.add_child(indicator);  // COMMENTED OUT BECAUSE THE BUTTON IS GOING TO HAVE A BOX AND NOT AN ICON
+	    
+	box.add_actor(indicator);	// LET'S INDEED ADD THE ICON TO THE BOX
+	box.add_actor(lindicator);	// PLUS THE LABEL
+	this.add_child(box);		// AND THE BUTTON HAS THE BOX AS CHILD
+	    
         let signals = [];
 
         let pushSignal = (obj, signalName, callback) => {
@@ -1451,21 +1458,21 @@ var MprisIndicatorButton = GObject.registerClass({
                 }
             });
             
-            let beacon;
-            if (activePlayer){
-            	beacon=PLAYBACK_ICONS[activePlayer.playbackStatus];
-            }else{
-            	beacon=null;
-            }
-            indicator.icon_name = beacon; //activePlayer ? activePlayer.gicon : null;
+		
+// ORIGINAL CODE	    indicator.gicon = activePlayer ? activePlayer.gicon : null;
+            indicator.icon_name = activePlayer ? PLAYBACK_ICONS[activePlayer.playbackStatus] : null; //My version
+		//Asking for the shell's theme to provide the icons named in PLAYBACK_ICONS on top
             
             let visible = indicator.gicon ? true : false;
+		// if the gicon is null then there's not a player playing.
             
-            if (visible) {
-	            if (activePlayer.playbackStatus>0){
-        	    	lindicator.set_text( activePlayer.artist + " - " + activePlayer.trackTitle );
-        	    } else {
-            		lindicator.set_text( activePlayer.artist );
+            if (visible) {	//	THIS DID NOT EXIST. IF THE BUTTON IS VISIBLE...
+	            if (activePlayer.playbackStatus>0){ //AND THE STATUS IS NOT 'STOPPED' THEN
+        	    	lindicator.set_text( activePlayer.artist + " - " + activePlayer.trackTitle ); //THE LABEL CONTAINS ARTIS - TITLE
+        	    } else {	//THE STATUS IS 'STOPPED'
+            		lindicator.set_text( activePlayer.artist ); //THE LABEL CONTAINS ARTIST 
+			    // I don't know if it's Dbus or this extension, but, when playback is stopped
+			    // the artist is set as the name of the active player, es Clementine, VLC, ...
             	}
             }
             
@@ -1485,58 +1492,42 @@ var MprisIndicatorButton = GObject.registerClass({
             this.menu._getMenuItems().filter(i => i instanceof Player).forEach(p => p.refreshIcon());
         });
 
-        pushSignal(this, 'key-press-event', (actor, event) => {
-            let ctrl = event.has_control_modifier();
-            let shift = event.has_shift_modifier();
-            let player = getLastActivePlayer();
-            if ((ctrl || shift) && player) {
-                let symbol = event.get_key_symbol();
-                if (ctrl) {
-                    if (symbol === Clutter.KEY_space) {
-                        return player.playPauseStop();
-                    } else if (symbol === Clutter.Left) {
-                        return player.previous();
-                    } else if (symbol === Clutter.Right) {
-                        return player.next();
-                    } else if (symbol === Clutter.Up) {
-                        return player.volumeUp();
-                    } else if (symbol === Clutter.Down) {
-                        return player.volumeDown();
-                    } else if (symbol === Clutter.Return) {
-                        return player.toggleMute();
-                    }
-                } else if (shift) {
-                     if (symbol === Clutter.Left) {
-                        return player.toggleShuffle();
-                    } else if (symbol === Clutter.Right) {
-                        return player.cycleRepeat();
-                    } else if (symbol === Clutter.Return) {
-                        return player.toggleWindow(true);
-                    }
-                }
-            }
-            return Clutter.EVENT_PROPAGATE;
-        });
+/*	This code is undocumented and personally, i find pointless to press the button with the mouse and then rely on shortcuts
+	IT'S GOING TO BE REMOVED AFTER TESTS
 
-        pushSignal(this, 'button-press-event', (actor, event) => {
-            let player = getLastActivePlayer();
-            if (player) {
-                let button = event.get_button();
-                if (button === Clutter.BUTTON_PRIMARY) {
-                    this.menu.toggle();
-                    return Clutter.EVENT_STOP;
-                } else if (button === Clutter.BUTTON_MIDDLE) {
-                    return player.playPauseStop();
-                } else if (button === Clutter.BUTTON_SECONDARY) {
-                    return player.toggleWindow(true);
-                } else if (button === MOUSE_BUTTON_FORWARD) {
-                    return player.volumeUp();
-                } else if (button === MOUSE_BUTTON_BACK) {
-                    return player.volumeDown();
-                }
-            }
-            return Clutter.EVENT_PROPAGATE;
-        });
+		pushSignal(this, 'key-press-event', (actor, event) => {
+		    let ctrl = event.has_control_modifier();
+		    let shift = event.has_shift_modifier();
+		    let player = getLastActivePlayer();
+		    if ((ctrl || shift) && player) {
+			let symbol = event.get_key_symbol();
+			if (ctrl) {
+			    if (symbol === Clutter.KEY_space) {
+				return player.playPauseStop();
+			    } else if (symbol === Clutter.Left) {
+				return player.previous();
+			    } else if (symbol === Clutter.Right) {
+				return player.next();
+			    } else if (symbol === Clutter.Up) {
+				return player.volumeUp();
+			    } else if (symbol === Clutter.Down) {
+				return player.volumeDown();
+			    } else if (symbol === Clutter.Return) {
+				return player.toggleMute();
+			    }
+			} else if (shift) {
+			     if (symbol === Clutter.Left) {
+				return player.toggleShuffle();
+			    } else if (symbol === Clutter.Right) {
+				return player.cycleRepeat();
+			    } else if (symbol === Clutter.Return) {
+				return player.toggleWindow(true);
+			    }
+			}
+		    }
+		    return Clutter.EVENT_PROPAGATE;
+		});
+*/
 
         pushSignal(this, 'touch-event', (actor, event) => {
             if (event.type() == Clutter.EventType.TOUCH_BEGIN) {
@@ -1545,18 +1536,16 @@ var MprisIndicatorButton = GObject.registerClass({
             return Clutter.EVENT_PROPAGATE;
         });
 
+	    
+	// In this snippet i modified the shortcuts. Up and Down now control volume.
         pushSignal(this, 'scroll-event', (actor, event) => {
             let player = getLastActivePlayer();
             if (player) {
                 let scrollDirection = event.get_scroll_direction();
                 if (scrollDirection === Clutter.ScrollDirection.UP) {
-                    return player.previous();
-                } else if (scrollDirection === Clutter.ScrollDirection.DOWN) {
-                    return player.next();
-                } else if (scrollDirection === Clutter.ScrollDirection.LEFT) {
-                    return player.volumeDown();
-                } else if (scrollDirection === Clutter.ScrollDirection.RIGHT) {
                     return player.volumeUp();
+                } else if (scrollDirection === Clutter.ScrollDirection.DOWN) {
+                    return player.nextDown();
                 }
             }
             return Clutter.EVENT_PROPAGATE;
