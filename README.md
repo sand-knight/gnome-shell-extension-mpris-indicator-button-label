@@ -7,4 +7,4 @@ A fork of [gnome-shell-extension-mpris-indicator-button](https://github.com/Jaso
 
 Copied from [this version](https://github.com/JasonLG1979/gnome-shell-extension-mpris-indicator-button/commit/778c397c11ec1fcdb5a876024f49d64c6c613be6) on 28 August 2021.
 Made just a trivial change without even knowing javascript: every credit goes to the authors as described in the original [README](https://github.com/JasonLG1979/gnome-shell-extension-mpris-indicator-button/blob/master/README.md).
-I won't reliably update this version as I made the change for myself, on Debian stable.
+I won't reliably update this version as I made the change for myself, on LTS slow distro.
