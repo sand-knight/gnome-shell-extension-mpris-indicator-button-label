@@ -1545,7 +1545,7 @@ var MprisIndicatorButton = GObject.registerClass({
                 if (scrollDirection === Clutter.ScrollDirection.UP) {
                     return player.volumeUp();
                 } else if (scrollDirection === Clutter.ScrollDirection.DOWN) {
-                    return player.nextDown();
+                    return player.volumeDown();
                 }
             }
             return Clutter.EVENT_PROPAGATE;
