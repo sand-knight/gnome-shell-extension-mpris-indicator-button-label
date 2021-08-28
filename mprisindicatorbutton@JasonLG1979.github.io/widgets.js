@@ -1492,42 +1492,25 @@ var MprisIndicatorButton = GObject.registerClass({
             this.menu._getMenuItems().filter(i => i instanceof Player).forEach(p => p.refreshIcon());
         });
 
-/*	This code is undocumented and personally, i find pointless to press the button with the mouse and then rely on shortcuts
-	IT'S GOING TO BE REMOVED AFTER TESTS
-
-		pushSignal(this, 'key-press-event', (actor, event) => {
-		    let ctrl = event.has_control_modifier();
-		    let shift = event.has_shift_modifier();
-		    let player = getLastActivePlayer();
-		    if ((ctrl || shift) && player) {
-			let symbol = event.get_key_symbol();
-			if (ctrl) {
-			    if (symbol === Clutter.KEY_space) {
-				return player.playPauseStop();
-			    } else if (symbol === Clutter.Left) {
-				return player.previous();
-			    } else if (symbol === Clutter.Right) {
-				return player.next();
-			    } else if (symbol === Clutter.Up) {
-				return player.volumeUp();
-			    } else if (symbol === Clutter.Down) {
-				return player.volumeDown();
-			    } else if (symbol === Clutter.Return) {
-				return player.toggleMute();
-			    }
-			} else if (shift) {
-			     if (symbol === Clutter.Left) {
-				return player.toggleShuffle();
-			    } else if (symbol === Clutter.Right) {
-				return player.cycleRepeat();
-			    } else if (symbol === Clutter.Return) {
-				return player.toggleWindow(true);
-			    }
-			}
-		    }
-		    return Clutter.EVENT_PROPAGATE;
-		});
-*/
+        pushSignal(this, 'button-press-event', (actor, event) => {
+            let player = getLastActivePlayer();
+            if (player) {
+                let button = event.get_button();
+                if (button === Clutter.BUTTON_PRIMARY) {
+                    this.menu.toggle();
+                    return Clutter.EVENT_STOP;
+                } else if (button === Clutter.BUTTON_MIDDLE) {
+                    return player.playPauseStop();
+                } else if (button === Clutter.BUTTON_SECONDARY) {
+                    return player.toggleWindow(true);
+                } else if (button === MOUSE_BUTTON_FORWARD) {
+                    return player.volumeUp();
+                } else if (button === MOUSE_BUTTON_BACK) {
+                    return player.volumeDown();
+                }
+            }
+            return Clutter.EVENT_PROPAGATE;
+        });
 
         pushSignal(this, 'touch-event', (actor, event) => {
             if (event.type() == Clutter.EventType.TOUCH_BEGIN) {
